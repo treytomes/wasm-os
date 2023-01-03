@@ -6,6 +6,20 @@
  */
 extern void trace(int channel, int data);
 
+enum StandardFile {
+	SF_DEBUG = 0,
+	SF_INFO = 1,
+	SF_ERROR = 2
+};
+
+/**
+ * @brief Write output to the JavaScript console.
+ * 
+ * @param channel Choose whether to write to the debug, info, or error streams.
+ * @param data 
+ */
+extern void serial_write(enum StandardFile channel, const char* data);
+
 int SYSTICK;
 
 #define MEM_LASTKEYPRESS 0x1000
@@ -34,6 +48,7 @@ void key_isr() {
  */
 EMSCRIPTEN_KEEPALIVE
 int main() {
+	serial_write(SF_INFO, "Starting the kernel.");
     trace(0, 12345);
     
     // Initial tick value.
