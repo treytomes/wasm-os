@@ -21,6 +21,7 @@
   "author": "Trey Tomes",
   "license": "MIT",
   "devDependencies": {
+    "@types/lodash": "^4.14.191",
     "copy-webpack-plugin": "^11.0.0",
     "html-webpack-plugin": "^5.5.0",
     "node-polyfill-webpack-plugin": "^2.0.1",
@@ -29,5 +30,10 @@
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.11.1"
+  },
+  "dependencies": {
+    "jimp": "^0.16.2",
+    "lodash": "^4.17.21",
+    "twgl.js": "^5.3.0"
   }
 }

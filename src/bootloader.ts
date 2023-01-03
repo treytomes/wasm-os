@@ -1,5 +1,5 @@
-import * as serial from './serial';
-import * as system from './system';
+import * as serial from './system/serial';
+import * as process from './system/process';
 import settings from './settings';
 
 interface IKernelExports {
@@ -18,7 +18,7 @@ let memory = new WebAssembly.Memory({
 let exports;
 
 const wasi_imports = {
-	'proc_exit': system.proc_exit
+	'proc_exit': process.proc_exit
 };
 
 export function main() {
