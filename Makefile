@@ -17,3 +17,8 @@ clean:
 	rm -f *.wasm
 
 always:
+#	ifeq ($(OS),Windows_NT)
+#		env.bat
+#	else
+#		env.sh
+#	endif
