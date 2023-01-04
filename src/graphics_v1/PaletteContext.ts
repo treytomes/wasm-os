@@ -1,5 +1,3 @@
-import { Color } from "./Color";
-
 export const PALETTE_SIZE = 256;
 
 export class PaletteContext {
@@ -10,17 +8,11 @@ export class PaletteContext {
 
 	constructor(gl: WebGLRenderingContext, size = PALETTE_SIZE) {
 		this.gl = gl;
-
-		this.resize(size);
-	}
-
-	resize(size: number) {
 		this.size = size;
+
+		// The 256-color screen palette.
 		this.palette = new Uint8Array(this.size * 4);
 
-		if (this.texture) {
-			this.gl.deleteTexture(this.texture);
-		}
 		this.texture = this.gl.createTexture();
 		this.gl.activeTexture(this.gl.TEXTURE1);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
@@ -40,13 +32,18 @@ export class PaletteContext {
 		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.size, 1, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.palette);	
 	}
 
-	load(colors: Array<Color>) {
+	load(colors: Array<Array<number>>) {
 		for (let index = 0; index < colors.length; index++) {
-			const c = colors[index];
-			this.palette[index * 4 + 0] = c.red;
-			this.palette[index * 4 + 1] = c.green;
-			this.palette[index * 4 + 2] = c.blue;
-			this.palette[index * 4 + 3] = c.alpha;
+			let c = colors[index];
+			let r = c[0];
+			let g = c[1];
+			let b = c[2];
+			let a = (c.length > 3) ? c[3] : 255;
+	
+			this.palette[index * 4 + 0] = r;
+			this.palette[index * 4 + 1] = g;
+			this.palette[index * 4 + 2] = b;
+			this.palette[index * 4 + 3] = a;
 		}
 		this.refresh();
 	}

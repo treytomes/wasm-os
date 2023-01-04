@@ -2,7 +2,6 @@ precision mediump float;
 varying vec2 v_texcoord;
 uniform sampler2D u_image;
 uniform sampler2D u_palette;
-uniform float u_time;
 
 #define PALETTE_SIZE 256.0
 

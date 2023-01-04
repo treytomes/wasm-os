@@ -1,9 +1,9 @@
-import { Color } from '../Color';
+import { loadPalette } from '../bootstrap.js';
 
 /**
  * Generate a palette with 6 increments each of red, green, and blue.
  */
- export function generatePalette(): Array<Color> {
+ function generatePalette() {
     const BITS = 6;
     let colors = [];
     let n = 0;
@@ -20,11 +20,11 @@ import { Color } from '../Color';
                 let g1 = ~~(((gg + mid * 1) / 2) * 230 / 255 + 10);
                 let b1 = ~~(((bb + mid * 1) / 2) * 230 / 255 + 10);
 
-                colors[n++] = new Color(r1, g1, b1);
+                colors[n++] = [ r1, g1, b1 ];
             }
         }
     }
-    return colors;
+    loadPalette(colors);
 }
 
 /**
@@ -42,7 +42,7 @@ import { Color } from '../Color';
  * @param {number?} b A number from 0-5, or null for a single-value color.
  * @returns A palette index into the radial palette.
  */
-export function getColor(r: number, g: number | null = null, b: number | null = null) {
+function getColor(r: number, g: number | null = null, b: number | null = null) {
     if ((g == null) && (b == null)) {
         b = (r % 10);
         g = Math.floor(r / 10) % 10;
@@ -75,3 +75,5 @@ function getShadedColor(c, percent) {
 	return r * 36 + g * 6 + b;
 }
 */
+
+export { generatePalette, getColor };

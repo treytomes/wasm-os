@@ -8,20 +8,13 @@ export default class RenderContext {
 
 	constructor(gl: WebGLRenderingContext, width: number, height: number) {
 		this.gl = gl;
-		this.resize(width, height);
-	}
-
-	resize(width: number, height: number) {
 		this.width = width;
 		this.height = height;
-		
+
 		// The image representing our screen.
 		this.image = new Uint8Array(width * height);
 		this.imageTexture = null;
 
-		if (this.texture) {
-			this.gl.deleteTexture(this.texture);
-		}
 		this.texture = this.gl.createTexture();
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
 		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.width, this.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
@@ -32,9 +25,6 @@ export default class RenderContext {
 	 * Upload the render image data to video memory.
 	 */
 	createTexture() {
-		if (this.imageTexture) {
-			this.gl.deleteTexture(this.imageTexture);
-		}
 		this.imageTexture = this.gl.createTexture();
 		this.refresh();
 		this.setTextureParameters();
@@ -76,10 +66,6 @@ export default class RenderContext {
 		if (color > 255) color = 255;
 
 		this.image[y * this.width + x] = color;
-	}
-
-	link(src: ArrayBuffer, startingIndex: number) {
-		this.image = new Uint8Array(src).subarray(startingIndex, startingIndex + this.image.length);
 	}
 
 	/**

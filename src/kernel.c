@@ -1,10 +1,7 @@
 #include <emscripten.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
-
-/**
- * @brief Send data to JavaScript.
- */
-extern void trace(int channel, int data);
 
 enum StandardFile {
 	SF_DEBUG = 0,
@@ -19,6 +16,39 @@ enum StandardFile {
  * @param data 
  */
 extern void serial_write(enum StandardFile channel, const char* data);
+
+/**
+ * BEGIN JAVASCRIPT FUNCTIONS
+ */
+
+/**
+ * @brief Send data to JavaScript.
+ */
+extern void trace(int channel, int data);
+
+/**
+ * @brief Set the display mode, including the palette.
+ * 
+ * @param width 
+ * @param height 
+ * @param palette An array of red, green, blue, alpha values.
+ */
+extern void set_display_mode(int width, int height, uint8_t* palette);
+
+/**
+ * @brief Set the display mode.
+ * 
+ * @param width Display width.
+ * @param height Display height.
+ * @param pixels Pointer to the pixel data.
+ */
+//extern void set_display_mode(int width, int height, char* pixels);
+
+/**
+ * END JAVASCRIPT FUNCTIONS
+ */
+
+uint8_t* VIDEO_MEMORY;
 
 int SYSTICK;
 
@@ -58,6 +88,19 @@ int main() {
     memset(NVIC, 0, sizeof(NVIC));
     NVIC[TIM_IRQ] = &tim_isr;
     NVIC[KEY_IRQ] = &key_isr;
+
+	int displayWidth = 320;
+	int displayHeight = 240;
+	VIDEO_MEMORY = malloc(displayWidth * displayHeight);
+	// TODO: Assign the palette from here.
+	set_display_mode(displayWidth, displayHeight, NULL);
+
+	// Graphics test.
+	for (int x = 100; x < 150; x++) {
+		for (int y = 100; y < 150; y++) {
+			VIDEO_MEMORY[y * displayWidth + x] = 215;
+		}
+	}
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -68,6 +111,11 @@ void irq_handler(int irq) {
     if (NVIC[irq]) {
         NVIC[irq]();
     }
+}
+
+EMSCRIPTEN_KEEPALIVE
+uint8_t* get_video_memory() {
+	return VIDEO_MEMORY;
 }
 
 /**
