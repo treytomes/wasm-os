@@ -15,7 +15,7 @@ https://webglfundamentals.org/
 
 import * as twgl from 'twgl.js';
 import RenderContext from './RenderContext';
-import { PaletteContext, PALETTE_SIZE } from './PaletteContext';
+import { PaletteContext } from './PaletteContext';
 
 import RENDER_SHADER_VS from '../shaders/render.vs';
 import RENDER_SHADER_FS from '../shaders/render.fs';
@@ -292,7 +292,7 @@ export function endRender() {
 	if (!isInitialized || !isDisplayModeSet) {
 		return;
 	}
-	
+
 	renderContext.refresh();
 	refreshFrameBuffer();
 	presentFrameBuffer();
