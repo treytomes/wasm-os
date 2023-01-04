@@ -276,9 +276,9 @@ export function beginRender() {
 		return;
 	}
 	twgl.resizeCanvasToDisplaySize(gl.canvas as HTMLCanvasElement);
-	// this makes WebGL render to the texture and depthBuffer
-	// all draw calls will render there instead of the canvas
-	// until we bind something else.
+
+	// This makes WebGL render to the texture and depthBuffer.
+	// All draw calls will render there instead of the canvas until we bind something else.
 	gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
 	gl.viewport(0, 0, displayMode.width, displayMode.height);
 
@@ -292,7 +292,7 @@ export function endRender() {
 	if (!isInitialized || !isDisplayModeSet) {
 		return;
 	}
-
+	
 	renderContext.refresh();
 	refreshFrameBuffer();
 	presentFrameBuffer();

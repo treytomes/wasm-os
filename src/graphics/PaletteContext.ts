@@ -1,14 +1,12 @@
 import { Color } from "./Color";
 
-export const PALETTE_SIZE = 256;
-
 export class PaletteContext {
 	gl: WebGLRenderingContext;
 	size: number;
 	palette: Uint8Array;
 	texture: WebGLTexture;
 
-	constructor(gl: WebGLRenderingContext, size = PALETTE_SIZE) {
+	constructor(gl: WebGLRenderingContext, size: number) {
 		this.gl = gl;
 
 		this.resize(size);
