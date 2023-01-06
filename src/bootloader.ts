@@ -4,7 +4,7 @@ import settings from './settings';
 import * as memory from './system/memory';
 import * as graphics from './graphics/init';
 import { DisplayMode } from './graphics/DisplayMode';
-import * as palette from './graphics/palettes/radial';
+import * as palette from './graphics/palettes/cga';
 
 interface IKernelExports {
 	memory: WebAssembly.Memory;
@@ -33,7 +33,7 @@ export function main() {
 			env: {
 				emscripten_resize_heap: memory.emscripten_resize_heap,
 				serial_write: (file: serial.StandardFile, dataPointer: number) => serial.serial_write(memory.memory, file, dataPointer),
-				set_display_mode: (width: number, height: number, palettePointer: number) => {
+				set_display_mode: (width: number, height: number, paletteSize: number, palettePointer: number) => {
 					const p = palette.generatePalette(); 
 					graphics.setDisplayMode(new DisplayMode(width, height, p));
 				},

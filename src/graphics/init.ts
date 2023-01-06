@@ -23,6 +23,7 @@ import CANVAS_SHADER_VS from '../shaders/canvas.vs';
 import CANVAS_SHADER_FS from '../shaders/canvas.fs';
 import { DisplayMode } from './DisplayMode';
 import { Color } from './Color';
+import { times } from 'lodash';
 
 // These are used to setup the quad buffer for rendering the image data to the framebuffer.
 const QUAD_ARRAYS = {
@@ -226,7 +227,7 @@ function refreshFrameBuffer() {
 /**
  * Render the framebuffer to the canvas.
  */
-function presentFrameBuffer() {
+function presentFrameBuffer(time: number) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
@@ -261,9 +262,10 @@ function presentFrameBuffer() {
 	twgl.setUniforms(canvasShader, {
 		u_matrix: m,
 		u_texture: renderContext.texture,
-		u_time: Date.now() * 0.0001,
+		u_time: time, // Date.now(),
 		u_screenResolution: [displayMode.width, displayMode.height]
 	});
+	//gl.uniform1f(gl.getUniformLocation(canvasShader.program, 'u_time'), 0.5);
 	// calls gl.drawArrays or gl.drawElements
 	twgl.drawBufferInfo(gl, quadBufferInfo);
 }
@@ -288,14 +290,14 @@ export function beginRender() {
 /**
  * Present the completed image data to the screen.
  */
-export function endRender() {
+export function endRender(time: number) {
 	if (!isInitialized || !isDisplayModeSet) {
 		return;
 	}
 
 	renderContext.refresh();
 	refreshFrameBuffer();
-	presentFrameBuffer();
+	presentFrameBuffer(time);
 }
 
 /**

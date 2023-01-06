@@ -2,12 +2,17 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include "graphics.h"
 
 enum StandardFile {
 	SF_DEBUG = 0,
 	SF_INFO = 1,
 	SF_ERROR = 2
 };
+
+/**
+ * BEGIN JAVASCRIPT FUNCTIONS
+ */
 
 /**
  * @brief Write output to the JavaScript console.
@@ -18,31 +23,9 @@ enum StandardFile {
 extern void serial_write(enum StandardFile channel, const char* data);
 
 /**
- * BEGIN JAVASCRIPT FUNCTIONS
- */
-
-/**
  * @brief Send data to JavaScript.
  */
 extern void trace(int channel, int data);
-
-/**
- * @brief Set the display mode, including the palette.
- * 
- * @param width 
- * @param height 
- * @param palette An array of red, green, blue, alpha values.
- */
-extern void set_display_mode(int width, int height, uint8_t* palette);
-
-/**
- * @brief Set the display mode.
- * 
- * @param width Display width.
- * @param height Display height.
- * @param pixels Pointer to the pixel data.
- */
-//extern void set_display_mode(int width, int height, char* pixels);
 
 /**
  * END JAVASCRIPT FUNCTIONS
@@ -60,8 +43,26 @@ int SYSTICK;
 typedef void (*isr)();
 isr NVIC[MAX_ISR];
 
+int displayWidth = 320;
+int displayHeight = 240;
+uint8_t color = 0;
+
 void tim_isr() {
     trace(1, SYSTICK++);
+
+	// Graphics test.
+
+	color++;
+	if (color > 15) {
+		color = 0;
+	}
+
+	for (int x = 100; x < 150; x++) {
+		for (int y = 100; y < 150; y++) {
+			VIDEO_MEMORY[y * displayWidth + x] = color;
+		}
+	}
+	//trace(2, get_color1(500));
 }
 
 void key_isr() {
@@ -89,18 +90,9 @@ int main() {
     NVIC[TIM_IRQ] = &tim_isr;
     NVIC[KEY_IRQ] = &key_isr;
 
-	int displayWidth = 320;
-	int displayHeight = 240;
-	VIDEO_MEMORY = malloc(displayWidth * displayHeight);
+	VIDEO_MEMORY = (uint8_t*)malloc(displayWidth * displayHeight);
 	// TODO: Assign the palette from here.
-	set_display_mode(displayWidth, displayHeight, NULL);
-
-	// Graphics test.
-	for (int x = 100; x < 150; x++) {
-		for (int y = 100; y < 150; y++) {
-			VIDEO_MEMORY[y * displayWidth + x] = 215;
-		}
-	}
+	set_display_mode(displayWidth, displayHeight, 0, NULL);
 }
 
 EMSCRIPTEN_KEEPALIVE

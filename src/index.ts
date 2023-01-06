@@ -25,7 +25,7 @@ function onRenderFrame(time: number) {
 	*/
 
 
-    graphics.endRender();
+    graphics.endRender(time);
 	//console.log('Key press from index: ', (new Uint8Array(memory.buffer))[settings.MEM_LASTKEYPRESS]);
     requestAnimationFrame(onRenderFrame);
 }
