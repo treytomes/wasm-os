@@ -349,7 +349,6 @@ export function setDisplayMode(mode: DisplayMode) {
 	}
 
 	displayMode = mode;
-	console.log(`Setting display mode ${displayMode.width}x${displayMode.height} with ${displayMode.palette.length} colors.`);
 
 	// Make a pixel texture to match the requested screen size.
 	if (!renderContext) {

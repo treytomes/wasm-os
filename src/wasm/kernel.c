@@ -31,11 +31,31 @@ extern void trace(int channel, int data);
  * END JAVASCRIPT FUNCTIONS
  */
 
-uint8_t* VIDEO_MEMORY;
+struct MemoryMap {
+	/**
+	 * The location of the ascii code for the most recent key press.
+	 */
+	uint8_t* LAST_KEY_PRESS;
+
+	/**
+	 * Pixels should be drawn to this location.
+	 */
+	uint8_t* VIDEO_MEMORY;
+
+	/**
+	 * Text should be written to this locaton.
+	 */
+	uint8_t* TEXT_MEMORY;
+
+	/**
+	 * The font is stored here.
+	 */
+	uint8_t* FONT_MEMORY;
+};
+
+struct MemoryMap* memory_map;
 
 int SYSTICK;
-
-#define MEM_LASTKEYPRESS 0x1000
 
 #define MAX_ISR 16
 #define TIM_IRQ 0
@@ -43,9 +63,30 @@ int SYSTICK;
 typedef void (*isr)();
 isr NVIC[MAX_ISR];
 
-int displayWidth = 320;
-int displayHeight = 240;
+int displayWidth;
+int displayHeight;
+int textRows;
+int textColumns;
 uint8_t color = 0;
+
+#define FONT_SIZE 256
+#define COLUMNS_PER_CHARACTER 8
+#define ROWS_PER_CHARACTER 8
+
+// First byte is the character, second byte is the attribute.
+#define BYTES_PER_TEXT_CELL 2
+
+void set_display_mode(int width, int height, int paletteSize, struct Color palette[]) {
+	displayWidth = width;
+	displayHeight = height;
+	memory_map->VIDEO_MEMORY = (uint8_t*)malloc(displayWidth * displayHeight);
+
+	textRows = displayHeight / ROWS_PER_CHARACTER;
+	textColumns = displayWidth / COLUMNS_PER_CHARACTER;
+	memory_map->TEXT_MEMORY = (uint8_t*)malloc(textRows * textColumns * BYTES_PER_TEXT_CELL);
+
+	_set_display_mode(displayWidth, displayHeight, 16, palette);
+}
 
 void tim_isr() {
     trace(1, SYSTICK++);
@@ -57,17 +98,24 @@ void tim_isr() {
 		color = 0;
 	}
 
+	for (int x = 0; x < displayWidth; x++) {
+		for (int y = 0; y < displayHeight; y++) {
+			uint8_t c = (x % 16) ^ (y % 16);
+			memory_map->VIDEO_MEMORY[y * displayWidth + x] = c;
+		}
+	}
+
 	for (int x = 100; x < 150; x++) {
 		for (int y = 100; y < 150; y++) {
-			VIDEO_MEMORY[y * displayWidth + x] = color;
+			memory_map->VIDEO_MEMORY[y * displayWidth + x] = color;
 		}
 	}
 	//trace(2, get_color1(500));
 }
 
 void key_isr() {
-    int* ptr = (int*)MEM_LASTKEYPRESS;
-    trace(2, *ptr);
+	uint8_t ch = *(uint8_t*)memory_map->LAST_KEY_PRESS;
+    trace(2, ch);
 }
 
 /**
@@ -80,7 +128,7 @@ void key_isr() {
 EMSCRIPTEN_KEEPALIVE
 int main() {
 	serial_write(SF_INFO, "Starting the kernel.");
-    trace(0, 12345);
+    //trace(0, 12345);
     
     // Initial tick value.
     SYSTICK = 0;
@@ -90,29 +138,13 @@ int main() {
     NVIC[TIM_IRQ] = &tim_isr;
     NVIC[KEY_IRQ] = &key_isr;
 
-	VIDEO_MEMORY = (uint8_t*)malloc(displayWidth * displayHeight);
-	// TODO: Assign the palette from here.
-	struct Color palette[16];
-	palette[0] = Color_new(0, 0, 0);
+	memory_map = (struct MemoryMap*)malloc(sizeof(struct MemoryMap));
+	memory_map->LAST_KEY_PRESS = (uint8_t*)malloc(1);
+	memory_map->FONT_MEMORY = (uint8_t*)malloc(FONT_SIZE * ROWS_PER_CHARACTER);
 
-	palette[0] = Color_new(0, 0, 0);
-	palette[1] = Color_new(0, 0, 0xAA);
-	palette[2] = Color_new(0, 0xAA, 0);
-	palette[3] = Color_new(0, 0xAA, 0xAA);
-	palette[4] = Color_new(0xAA, 0, 0);
-	palette[5] = Color_new(0xAA, 0, 0xAA);
-	palette[6] = Color_new(0xAA, 0x55, 0);
-	palette[7] = Color_new(0xAA, 0xAA, 0xAA);
-	palette[8] = Color_new(0x55, 0x55, 0x55);
-	palette[9] = Color_new(0x55, 0x55, 0xFF);
-	palette[10] = Color_new(0x55, 0xFF, 0x55);
-	palette[11] = Color_new(0x55, 0xFF, 0xFF);
-	palette[12] = Color_new(0xFF, 0x55, 0x55);
-	palette[13] = Color_new(0xFF, 0x55, 0xFF);
-	palette[14] = Color_new(0xFF, 0xFF, 0x55);
-	palette[15] = Color_new(0xFF, 0xFF, 0xFF);
-
-	set_display_mode(displayWidth, displayHeight, 16, palette);
+	struct Color* palette = generate_palette_cga();
+	set_display_mode(320, 240, 16, palette);
+	free(palette);
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -126,8 +158,8 @@ void irq_handler(int irq) {
 }
 
 EMSCRIPTEN_KEEPALIVE
-uint8_t* get_video_memory() {
-	return VIDEO_MEMORY;
+struct MemoryMap* get_memory_map() {
+	return memory_map;
 }
 
 /**

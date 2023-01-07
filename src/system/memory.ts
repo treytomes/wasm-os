@@ -16,6 +16,31 @@ export let HEAPU32: Uint32Array;
 export let HEAPF32: Float32Array;
 export let HEAPF64: Float64Array;
 
+export const sizeofInt8 = 1;
+export const sizeofInt16 = 2;
+export const sizeofInt32 = 4;
+export const sizeofUint8 = 1;
+export const sizeofUint16 = 2;
+export const sizeofUint32 = 4;
+export const sizeofFloat32 = 4;
+export const sizeofFloat64 = 8;
+
+export class MemoryMap {
+	static instance: MemoryMap;
+
+	lastKeyPress: number;
+	videoMemory: number;
+	textMemory: number;
+	fontMemory: number;
+
+	constructor(lastKeyPress: number, videoMemory: number, textMemory: number, fontMemory: number) {
+		this.lastKeyPress = lastKeyPress;
+		this.videoMemory = videoMemory;
+		this.textMemory = textMemory;
+		this.fontMemory = fontMemory;
+	}
+}
+
 function updateGlobalBufferAndViews() {
 	HEAP8 = new Int8Array(memory.buffer);
 	HEAP16 = new Int16Array(memory.buffer);

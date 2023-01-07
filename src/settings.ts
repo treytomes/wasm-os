@@ -2,7 +2,6 @@ export default {
 	'URL_KERNEL_WASM': 'kernel.wasm',
 	'TIM_IRQ': 0,
 	'KEY_IRQ': 1,
-	'MEM_LASTKEYPRESS': 0x1000,
 	'TICK_INTERVAL_MS': 1000,
 	'INITIAL_SIZE_PAGES': 256,
 	'MAXIMUM_SIZE_PAGES': 512

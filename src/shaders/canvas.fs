@@ -74,7 +74,7 @@ void main() {
 	vec4 color = texture2D(u_texture, pos);
 	color = scanlines(pos, color);
 	color = bloom(color, pos, glowFactor, originWeight);
-	//color *= vignetteIntensity(pos, vignetteOpacity, vignetteRoundness);
+	color *= vignetteIntensity(pos, vignetteOpacity, vignetteRoundness);
 
 	if(pos.x < 0.0 || pos.y < 0.0 || pos.x > 1.0 || pos.y > 1.0) {
 		gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);

@@ -22,11 +22,16 @@ struct Color Color_new(uint8_t _r, uint8_t _g, uint8_t _b);
  * @param height 
  * @param palette An array of red, green, blue, alpha values.
  */
-extern void set_display_mode(int width, int height, int paletteSize, struct Color palette[]);
+extern void _set_display_mode(int width, int height, int paletteSize, struct Color palette[]);
 
 /**
  * END JAVASCRIPT FUNCTIONS
  */
+
+/**
+ * Generate the array of 16 CGA colors.
+ */
+struct Color* generate_palette_cga();
 
 /**
  * Convert an RGB value into a palette index.
