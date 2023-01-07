@@ -271,9 +271,9 @@ function presentFrameBuffer(time: number) {
 }
 
 /**
- * Prepare the screen for rendering.
+ * Prepare the screen for rendering, then present the completed image data to the screen.
  */
-export function beginRender() {
+export function refresh(time: number) {
 	if (!isInitialized || !isDisplayModeSet) {
 		return;
 	}
@@ -285,16 +285,7 @@ export function beginRender() {
 	gl.viewport(0, 0, displayMode.width, displayMode.height);
 
 	gl.useProgram(renderShader.program);
-}
-
-/**
- * Present the completed image data to the screen.
- */
-export function endRender(time: number) {
-	if (!isInitialized || !isDisplayModeSet) {
-		return;
-	}
-
+	
 	renderContext.refresh();
 	refreshFrameBuffer();
 	presentFrameBuffer(time);

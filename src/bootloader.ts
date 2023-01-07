@@ -4,7 +4,8 @@ import settings from './settings';
 import * as memory from './system/memory';
 import * as graphics from './graphics/init';
 import { DisplayMode } from './graphics/DisplayMode';
-import * as palette from './graphics/palettes/cga';
+import * as palette from './graphics/palettes/greyscale';
+import { Color } from './graphics/Color';
 
 interface IKernelExports {
 	memory: WebAssembly.Memory;
@@ -34,7 +35,21 @@ export function main() {
 				emscripten_resize_heap: memory.emscripten_resize_heap,
 				serial_write: (file: serial.StandardFile, dataPointer: number) => serial.serial_write(memory.memory, file, dataPointer),
 				set_display_mode: (width: number, height: number, paletteSize: number, palettePointer: number) => {
-					const p = palette.generatePalette(); 
+					//const p = palette.generatePalette();
+					const p: Array<Color> = [];
+					
+					for (let offset = 0; offset < paletteSize * 3; offset += 3) {
+						const red = memory.HEAP8[palettePointer + offset + 0];
+						const green = memory.HEAP8[palettePointer + offset + 1];
+						const blue = memory.HEAP8[palettePointer + offset + 2];
+						const c = new Color(red, green, blue);
+						console.log(c);
+						p.push(c);
+					}
+					while (p.length < 256) {
+						p.push(Color.black());
+					}
+
 					graphics.setDisplayMode(new DisplayMode(width, height, p));
 				},
 				trace: (channel: number, data: number) => serial.trace(channel, data),

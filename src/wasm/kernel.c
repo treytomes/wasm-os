@@ -92,7 +92,27 @@ int main() {
 
 	VIDEO_MEMORY = (uint8_t*)malloc(displayWidth * displayHeight);
 	// TODO: Assign the palette from here.
-	set_display_mode(displayWidth, displayHeight, 0, NULL);
+	struct Color palette[16];
+	palette[0] = Color_new(0, 0, 0);
+
+	palette[0] = Color_new(0, 0, 0);
+	palette[1] = Color_new(0, 0, 0xAA);
+	palette[2] = Color_new(0, 0xAA, 0);
+	palette[3] = Color_new(0, 0xAA, 0xAA);
+	palette[4] = Color_new(0xAA, 0, 0);
+	palette[5] = Color_new(0xAA, 0, 0xAA);
+	palette[6] = Color_new(0xAA, 0x55, 0);
+	palette[7] = Color_new(0xAA, 0xAA, 0xAA);
+	palette[8] = Color_new(0x55, 0x55, 0x55);
+	palette[9] = Color_new(0x55, 0x55, 0xFF);
+	palette[10] = Color_new(0x55, 0xFF, 0x55);
+	palette[11] = Color_new(0x55, 0xFF, 0xFF);
+	palette[12] = Color_new(0xFF, 0x55, 0x55);
+	palette[13] = Color_new(0xFF, 0x55, 0xFF);
+	palette[14] = Color_new(0xFF, 0xFF, 0x55);
+	palette[15] = Color_new(0xFF, 0xFF, 0xFF);
+
+	set_display_mode(displayWidth, displayHeight, 16, palette);
 }
 
 EMSCRIPTEN_KEEPALIVE

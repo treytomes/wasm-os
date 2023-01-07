@@ -6,27 +6,7 @@ import * as graphics from './graphics/init';
 //import { memory } from './system/memory';
 
 function onRenderFrame(time: number) {
-    graphics.beginRender();
-
-	/*
-	const mem = new Uint8Array(memory.buffer); //.subarray(0xA000, 0xA000 + graphics.displayMode.width * graphics.displayMode.height);
-
-	//mem.subarray(0).fill(palette.getColor(30));
-	mem.subarray(graphics.VIDEO_MEMORY).fill(palette.getColor(3));
-	//mem.fill(palette.getColor(514));
-	
-	// TODO: Draw everything here.
-	for (let x = 100; x < 150; x++) {
-		for (let y = 100; y < 150; y++) {
-			//graphics.setPixel(x, y, palette.getColor(531));
-			mem[graphics.VIDEO_MEMORY + y * graphics.displayMode.width + x] = palette.getColor(555);
-		}
-	}
-	*/
-
-
-    graphics.endRender(time);
-	//console.log('Key press from index: ', (new Uint8Array(memory.buffer))[settings.MEM_LASTKEYPRESS]);
+    graphics.refresh(time);
     requestAnimationFrame(onRenderFrame);
 }
 
