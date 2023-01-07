@@ -16,37 +16,12 @@ https://webglfundamentals.org/
 import * as twgl from 'twgl.js';
 import RenderContext from './RenderContext';
 import { PaletteContext } from './PaletteContext';
+import CanvasShader from './CanvasShader';
 
 import RENDER_SHADER_VS from '../shaders/render.vs';
 import RENDER_SHADER_FS from '../shaders/render.fs';
-import CANVAS_SHADER_VS from '../shaders/canvas.vs';
-import CANVAS_SHADER_FS from '../shaders/canvas.fs';
 import { DisplayMode } from './DisplayMode';
 import { Color } from './Color';
-import { times } from 'lodash';
-
-// These are used to setup the quad buffer for rendering the image data to the framebuffer.
-const QUAD_ARRAYS = {
-	position: {
-		numComponents: 2,
-		data: [
-			0, 0,
-			1, 0,
-			0, 1,
-			0, 1,
-			1, 0,
-			1, 1,
-		],
-	},
-	texcoord: [
-		0, 0,
-		1, 0,
-		0, 1,
-		0, 1,
-		1, 0,
-		1, 1,
-	],
-};
 
 // Setup a unit quad composed of 2 triangles for rendering the framebuffer to the canvas.
 const FRAMEBUFFER_POSITIONS = [
@@ -64,14 +39,15 @@ export let displayMode: DisplayMode = null;
 let gl: WebGLRenderingContext = null;
 let renderContext: RenderContext = null;
 let paletteContext: PaletteContext = null;
-let canvasShader: twgl.ProgramInfo = null;
 let renderShader: twgl.ProgramInfo = null;
-let quadBufferInfo: twgl.BufferInfo = null;
+
 let depthBuffer: WebGLRenderbuffer = null;
 let fb: WebGLFramebuffer = null;
 export let VIDEO_MEMORY = 0;
 let isInitialized = false;
 let isDisplayModeSet = false;
+
+let canvasShader: CanvasShader = null;
 
 function hsv2rgb(hue: number, saturation: number, brightness: number) {
 	if (hue < 0) hue = 0;
@@ -131,8 +107,6 @@ function hsv2rgb(hue: number, saturation: number, brightness: number) {
  * Generate the quad buffer for rendering the image data to the framebuffer.
  */
 function initializeQuadBuffer() {
-	// calls gl.createBuffer, gl.bindBuffer, gl.bufferData for each array
-	quadBufferInfo = twgl.createBufferInfoFromArrays(gl, QUAD_ARRAYS);
 }
 
 /**
@@ -171,11 +145,6 @@ function loadRenderShader() {
 	// Tell it to use texture units 0 and 1 for the image and palette.
 	gl.uniform1i(imageLoc, 0);
 	gl.uniform1i(paletteLoc, 1);
-}
-
-function loadCanvasShader() {
-	// Compiles shaders, links program, looks up locations.
-	canvasShader = twgl.createProgramInfo(gl, [CANVAS_SHADER_VS, CANVAS_SHADER_FS]);
 }
 
 function setPalette(index: number, r: number, g: number, b: number, a: number = 255) {
@@ -255,19 +224,9 @@ function presentFrameBuffer(time: number) {
 	], m);
 	twgl.m4.scale(m, [drawWidth, drawHeight, 1], m);
 
-	gl.useProgram(canvasShader.program);
-	// calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
-	twgl.setBuffersAndAttributes(gl, canvasShader, quadBufferInfo);
-	// calls gl.uniformXXX, gl.activeTexture, gl.bindTexture
-	twgl.setUniforms(canvasShader, {
-		u_matrix: m,
-		u_texture: renderContext.texture,
-		u_time: time, // Date.now(),
-		u_screenResolution: [displayMode.width, displayMode.height]
-	});
-	//gl.uniform1f(gl.getUniformLocation(canvasShader.program, 'u_time'), 0.5);
-	// calls gl.drawArrays or gl.drawElements
-	twgl.drawBufferInfo(gl, quadBufferInfo);
+	canvasShader.time = time;
+	canvasShader.renderContext = renderContext;
+	canvasShader.present(m);
 }
 
 /**
@@ -335,7 +294,7 @@ export function initialize() {
 
 	gl = canvas.getContext('webgl');
 
-	loadCanvasShader();
+	canvasShader = new CanvasShader(gl);
 	loadRenderShader();
 	initializeQuadBuffer();
 
@@ -352,9 +311,9 @@ export function setDisplayMode(mode: DisplayMode) {
 
 	// Make a pixel texture to match the requested screen size.
 	if (!renderContext) {
-		renderContext = new RenderContext(gl, displayMode.width, displayMode.height);
+		renderContext = new RenderContext(gl, displayMode);
 	} else {
-		renderContext.resize(displayMode.width, displayMode.height);
+		renderContext.resize(displayMode);
 	}
 
 	initializeDepthBuffer();

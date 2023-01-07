@@ -4,6 +4,11 @@ uniform sampler2D u_texture;
 uniform float u_time;
 uniform vec2 u_screenResolution;
 
+uniform float u_useCurveRemap;
+uniform float u_useScanlines;
+uniform float u_useBloom;
+uniform float u_useVignette;
+
 // Vignette inspired by: https://babylonjs.medium.com/retro-crt-shader-a-post-processing-effect-study-1cb3f783afbc
 
 vec2 curveRemapUV(vec2 pos, vec2 curvature) {
@@ -69,12 +74,20 @@ void main() {
 	float vignetteOpacity = 0.6;
 	float vignetteRoundness = 2.0;
 	vec2 pos = v_texcoord;
-	//pos = curveRemapUV(pos, curvature);
+	if (u_useCurveRemap != 0.0) {
+		pos = curveRemapUV(pos, curvature);
+	}
 
 	vec4 color = texture2D(u_texture, pos);
-	color = scanlines(pos, color);
-	color = bloom(color, pos, glowFactor, originWeight);
-	color *= vignetteIntensity(pos, vignetteOpacity, vignetteRoundness);
+	if (u_useScanlines != 0.0) {
+		color = scanlines(pos, color);
+	}
+	if (u_useBloom != 0.0) {
+		color = bloom(color, pos, glowFactor, originWeight);
+	}
+	if (u_useVignette != 0.0) {
+		color *= vignetteIntensity(pos, vignetteOpacity, vignetteRoundness);
+	}
 
 	if(pos.x < 0.0 || pos.y < 0.0 || pos.x > 1.0 || pos.y > 1.0) {
 		gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);

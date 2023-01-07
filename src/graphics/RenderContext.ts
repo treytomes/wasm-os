@@ -1,22 +1,30 @@
+import { DisplayMode } from "./DisplayMode";
+
 export default class RenderContext {
 	gl: WebGLRenderingContext;
-	width: number;
-	height: number;
+	displayMode: DisplayMode;
 	image: Uint8Array;
 	imageTexture: WebGLTexture;
 	texture: WebGLTexture;
 
-	constructor(gl: WebGLRenderingContext, width: number, height: number) {
+	constructor(gl: WebGLRenderingContext, displayMode: DisplayMode) {
 		this.gl = gl;
-		this.resize(width, height);
+		this.resize(displayMode);
 	}
 
-	resize(width: number, height: number) {
-		this.width = width;
-		this.height = height;
+	get width(): number {
+		return this.displayMode.width;
+	}
+
+	get height(): number {
+		return this.displayMode.height;
+	}
+
+	resize(displayMode: DisplayMode) {
+		this.displayMode = displayMode;
 		
 		// The image representing our screen.
-		this.image = new Uint8Array(width * height);
+		this.image = new Uint8Array(displayMode.width * displayMode.height);
 		this.imageTexture = null;
 
 		if (this.texture) {
@@ -24,7 +32,7 @@ export default class RenderContext {
 		}
 		this.texture = this.gl.createTexture();
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
-		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.width, this.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
+		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.displayMode.width, this.displayMode.height, 0, this.gl.RGBA, this.gl.UNSIGNED_BYTE, null);
 		this.setTextureParameters();
 	}
 
@@ -53,7 +61,7 @@ export default class RenderContext {
 	refresh() {
 		this.gl.activeTexture(this.gl.TEXTURE0);
 		this.gl.bindTexture(this.gl.TEXTURE_2D, this.imageTexture);
-		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.ALPHA, this.width, this.height, 0, this.gl.ALPHA, this.gl.UNSIGNED_BYTE, this.image);
+		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.ALPHA, this.displayMode.width, this.displayMode.height, 0, this.gl.ALPHA, this.gl.UNSIGNED_BYTE, this.image);
 	}
 
 	/**
@@ -62,7 +70,7 @@ export default class RenderContext {
 	 * @returns {number} The palette index at the given position.
 	 */
 	getPixel(x: number, y: number) {
-		return this.image[y * this.width + x];
+		return this.image[y * this.displayMode.width + x];
 	}
 
 	/**
@@ -75,7 +83,7 @@ export default class RenderContext {
 		if (color < 0) color = 0;
 		if (color > 255) color = 255;
 
-		this.image[y * this.width + x] = color;
+		this.image[y * this.displayMode.width + x] = color;
 	}
 
 	link(src: ArrayBuffer, startingIndex: number) {
