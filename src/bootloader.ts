@@ -14,7 +14,7 @@ interface IKernelExports {
 	get_memory_map: () => number;
 }
 
-let exports;
+let exports: IKernelExports;
 
 const wasi_imports = {
 	'proc_exit': process.proc_exit
@@ -62,40 +62,45 @@ function _set_display_mode(width: number, height: number, paletteSize: number, p
 	graphics.setDisplayMode(new DisplayMode(width, height, palette));
 }
 
-export function main() {
+function onKeyPress(e: KeyboardEvent) {
+	// Write in memory.
+	memory.HEAP8[memory.MemoryMap.instance.lastKeyPress] = e.key.charCodeAt(0); // Get the ASCII character indicated by this key press.
+	exports.irq_handler(settings.KEY_IRQ);
+}
+
+function kernelMain(results: WebAssembly.WebAssemblyInstantiatedSource) {
+	exports = (results.instance.exports as unknown) as IKernelExports;
+	memory.setMemory(exports.memory);
+
+	// Initialize.
+	exports.main();
+	loadMemoryMap(exports.get_memory_map());
+	graphics.link(memory.memory.buffer, memory.MemoryMap.instance.videoMemory);
+
+	// systick
+	setInterval(() => exports.irq_handler(settings.TIM_IRQ), settings.TICK_INTERVAL_MS);
+
+	document.addEventListener('keypress', onKeyPress);
+}
+
+export async function main() {
 	console.info(`${Date.now()}: Starting the bootloade.?`);
 
 	// Load the operating system.
-	fetch(settings.URL_KERNEL_WASM)
-		.then(response => response.arrayBuffer())
-		.then(bytes => WebAssembly.instantiate(bytes, {
-			js: {
-				mem: memory.memory
-			},
-			env: {
-				emscripten_resize_heap: memory.emscripten_resize_heap,
-				serial_write: (file: serial.StandardFile, dataPointer: number) => serial.serial_write(memory.memory, file, dataPointer),
-				_set_display_mode: _set_display_mode,
-				trace: (channel: number, data: number) => serial.trace(channel, data),
-			},
-			wasi_snapshot_preview1: wasi_imports
-		}))
-		.then(results => {
-			let exports: IKernelExports = (results.instance.exports as unknown) as IKernelExports;
-			memory.setMemory(exports.memory);
-
-			// Initialize.
-			exports.main();
-			loadMemoryMap(exports.get_memory_map());
-			graphics.link(memory.memory.buffer, memory.MemoryMap.instance.videoMemory);
-
-			// systick
-			setInterval(() => exports.irq_handler(settings.TIM_IRQ), settings.TICK_INTERVAL_MS);
-
-			document.addEventListener('keypress', function (e: KeyboardEvent) {
-				// Write in memory.
-				memory.HEAP8[memory.MemoryMap.instance.lastKeyPress] = e.key.charCodeAt(0); // Get the ASCII character indicated by this key press.
-				exports.irq_handler(settings.KEY_IRQ);
-			});
-		});
+	const response = await fetch(settings.URL_KERNEL_WASM);
+	const bytes = await response.arrayBuffer();
+	const results = await WebAssembly.instantiate(bytes, {
+		js: {
+			mem: memory.memory
+		},
+		env: {
+			emscripten_resize_heap: memory.emscripten_resize_heap,
+			serial_write: (file: serial.StandardFile, dataPointer: number) => serial.serial_write(memory.memory, file, dataPointer),
+			_set_display_mode: _set_display_mode,
+			trace: (channel: number, data: number) => serial.trace(channel, data),
+		},
+		wasi_snapshot_preview1: wasi_imports
+	});
+	
+	kernelMain(results);
 }
