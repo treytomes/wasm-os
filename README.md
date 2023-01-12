@@ -1,6 +1,6 @@
 # WASM-OS
 
-![Screenshot](/relative/path/to/img.jpg?raw=true "Exercising the 8-bit display.")
+![Screenshot](/screenshots/screenshot_20230112.png?raw=true "Exercising the 8-bit display.")
 
 ## TODO
 
