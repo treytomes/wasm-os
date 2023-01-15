@@ -1,5 +1,7 @@
 # WASM-OS
 
+![Screenshot](/screenshots/screenshot_20230112.png?raw=true "Exercising the 8-bit display.")
+
 ## TODO
 
 - How to compile WASM?
