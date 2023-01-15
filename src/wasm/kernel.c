@@ -98,19 +98,51 @@ void tim_isr() {
 		color = 0;
 	}
 
+	// Draw a XOR pattern.
+	/*
 	for (int x = 0; x < displayWidth; x++) {
 		for (int y = 0; y < displayHeight; y++) {
 			uint8_t c = (x % 16) ^ (y % 16);
 			memory_map->VIDEO_MEMORY[y * displayWidth + x] = c;
 		}
 	}
+	*/
 
+	// Draw a filled rectangle.
+	/*
 	for (int x = 100; x < 150; x++) {
 		for (int y = 100; y < 150; y++) {
 			memory_map->VIDEO_MEMORY[y * displayWidth + x] = color;
 		}
 	}
-	//trace(2, get_color1(500));
+	*/
+
+	// Dump the contents of font memory.
+	/*
+	char ch = 0;
+	int offset = 0;
+	for (int row = 0; row < 16; row++) {
+		for (int column = 0; column < 16; column++) {
+			for (int yd = 0; yd < 8; yd++) {
+				uint8_t byte = memory_map->FONT_MEMORY[offset];
+				for (int xd = 7; xd >= 0; xd--) {
+					int x = 16 + column * 9 + xd;
+					int y = 16 + row * 9 + yd;
+
+					if ((byte & 0x01) == 1) {
+						memory_map->VIDEO_MEMORY[y * displayWidth + x] = (color + 9) % 16;
+					} else {
+						memory_map->VIDEO_MEMORY[y * displayWidth + x] = color;
+					}
+
+					byte = byte >> 1;
+				}
+				offset++;
+			}
+			ch++;
+		}
+	}
+	*/
 }
 
 void key_isr() {

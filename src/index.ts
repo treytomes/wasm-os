@@ -38,14 +38,16 @@ function loadFont() {
 				for (let yd = 0; yd < 8; yd++) {
 					let byte = 0;
 					for (let xd = 0; xd < 8; xd++) {
+						byte = byte << 1;
 						const clr = image.getPixelColor(x + xd, y + yd);
 						if (clr !== colorKey) {
 							byte = byte + 1;
 						}
-						byte = byte << 1;
 					}
+
+					//byte = 0xF0;
 					//data.push(byte);
-					memory.HEAP8[ptr] = byte;
+					memory.HEAPU8[ptr] = byte;
 					ptr++;
 				}
 				ch++;
