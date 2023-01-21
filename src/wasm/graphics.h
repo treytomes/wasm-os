@@ -58,6 +58,9 @@ struct Color* generate_palette_cga();
 int DisplayMode_get_text_rows(struct DisplayMode* mode);
 int DisplayMode_get_text_columns(struct DisplayMode* mode);
 
+void draw_filled_rect(int x1, int y1, int x2, int y2, uint8_t color);
+void drawch(int x, int y, int bg, int fg, int ch);
+
 /**
  * Convert an RGB value into a palette index.
  * 

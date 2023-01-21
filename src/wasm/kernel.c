@@ -39,35 +39,13 @@ void tim_isr() {
 	*/
 
 	// Draw a filled rectangle.
-	/*
-	for (int x = 100; x < 150; x++) {
-		for (int y = 100; y < 150; y++) {
-			memory_map->VIDEO_MEMORY[y * displayWidth + x] = color;
-		}
-	}
-	*/
+	//draw_filled_rect(100, 100, 150, 200, color);
 
-	// Dump the contents of font memory.
-	char ch = 0;
+	int ch = 0;
 	int offset = 0;
 	for (int row = 0; row < 16; row++) {
 		for (int column = 0; column < 16; column++) {
-			for (int yd = 0; yd < 8; yd++) {
-				uint8_t byte = memory_map->FONT_MEMORY[offset];
-				for (int xd = 7; xd >= 0; xd--) {
-					int x = 16 + column * 9 + xd;
-					int y = 16 + row * 9 + yd;
-
-					if ((byte & 0x01) == 1) {
-						memory_map->VIDEO_MEMORY[y * current_display_mode->pixel_width + x] = (color + 9) % 16;
-					} else {
-						memory_map->VIDEO_MEMORY[y * current_display_mode->pixel_width + x] = color;
-					}
-
-					byte = byte >> 1;
-				}
-				offset++;
-			}
+			drawch(32 + column * 8, 32 + row * 8, color, (color + 9) % 16, ch);
 			ch++;
 		}
 	}

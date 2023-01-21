@@ -67,6 +67,33 @@ void set_display_mode(int display_mode_index) {
 	_set_display_mode(current_display_mode->pixel_width, current_display_mode->pixel_height, current_display_mode->palette_size, current_display_mode->palette);
 }
 
+void draw_filled_rect(int x1, int y1, int x2, int y2, uint8_t color) {
+	for (int x = x1; x < x2; x++) {
+		for (int y = y1; y < y2; y++) {
+			memory_map->VIDEO_MEMORY[y * current_display_mode->pixel_width + x] = color;
+		}
+	}
+}
+
+void drawch(int x, int y, int bg, int fg, int ch) {
+	uint32_t offset = ch * ROWS_PER_CHARACTER;
+	for (int yd = 0; yd < ROWS_PER_CHARACTER; yd++) {
+		uint8_t byte = memory_map->FONT_MEMORY[offset];
+		for (int xd = COLUMNS_PER_CHARACTER - 1; xd >= 0; xd--) {
+			int xr = x + xd;
+			int yr = y + yd;
+			if ((byte & 0x01) == 1) {
+				memory_map->VIDEO_MEMORY[yr * current_display_mode->pixel_width + xr] = fg;
+			} else {
+				memory_map->VIDEO_MEMORY[yr * current_display_mode->pixel_width + xr] = bg;
+			}
+
+			byte = byte >> 1;
+		}
+		offset++;
+	}
+}
+
 uint8_t get_color3(uint8_t r, uint8_t g, uint8_t b) {
 	r = r % 6;
 	g = g % 6;
