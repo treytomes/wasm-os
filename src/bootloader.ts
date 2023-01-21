@@ -76,6 +76,7 @@ function kernelMain(results: WebAssembly.WebAssemblyInstantiatedSource) {
 	exports.main();
 	loadMemoryMap(exports.get_memory_map());
 	graphics.link(memory.memory.buffer, memory.MemoryMap.instance.videoMemory);
+	//graphics.loadFont();
 
 	// systick
 	setInterval(() => exports.irq_handler(settings.TIM_IRQ), settings.TICK_INTERVAL_MS);

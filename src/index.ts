@@ -27,7 +27,6 @@ function initializeEnvironment() {
 function loadFont() {
 	const colorKey = 0x000000FF;
 	Jimp.read(OEM437_8).then(image => {
-		//let data = [];
 		let ch = 0;
 		let ptr = memory.MemoryMap.instance.fontMemory;
 		for (let row = 0; row < 16; row++) {
@@ -45,15 +44,12 @@ function loadFont() {
 						}
 					}
 
-					//byte = 0xF0;
-					//data.push(byte);
 					memory.HEAPU8[ptr] = byte;
 					ptr++;
 				}
 				ch++;
 			}
 		}
-		//console.log('Font:', data);
 	});
 }
 

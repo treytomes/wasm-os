@@ -1,57 +1,10 @@
 #include <emscripten.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include "graphics.h"
-
-enum StandardFile {
-	SF_DEBUG = 0,
-	SF_INFO = 1,
-	SF_ERROR = 2
-};
-
-/**
- * BEGIN JAVASCRIPT FUNCTIONS
- */
-
-/**
- * @brief Write output to the JavaScript console.
- * 
- * @param channel Choose whether to write to the debug, info, or error streams.
- * @param data 
- */
-extern void serial_write(enum StandardFile channel, const char* data);
-
-/**
- * @brief Send data to JavaScript.
- */
-extern void trace(int channel, int data);
-
-/**
- * END JAVASCRIPT FUNCTIONS
- */
-
-struct MemoryMap {
-	/**
-	 * The location of the ascii code for the most recent key press.
-	 */
-	uint8_t* LAST_KEY_PRESS;
-
-	/**
-	 * Pixels should be drawn to this location.
-	 */
-	uint8_t* VIDEO_MEMORY;
-
-	/**
-	 * Text should be written to this locaton.
-	 */
-	uint8_t* TEXT_MEMORY;
-
-	/**
-	 * The font is stored here.
-	 */
-	uint8_t* FONT_MEMORY;
-};
+#include "system.h"
 
 struct MemoryMap* memory_map;
 
@@ -63,30 +16,7 @@ int SYSTICK;
 typedef void (*isr)();
 isr NVIC[MAX_ISR];
 
-int displayWidth;
-int displayHeight;
-int textRows;
-int textColumns;
 uint8_t color = 0;
-
-#define FONT_SIZE 256
-#define COLUMNS_PER_CHARACTER 8
-#define ROWS_PER_CHARACTER 8
-
-// First byte is the character, second byte is the attribute.
-#define BYTES_PER_TEXT_CELL 2
-
-void set_display_mode(int width, int height, int paletteSize, struct Color palette[]) {
-	displayWidth = width;
-	displayHeight = height;
-	memory_map->VIDEO_MEMORY = (uint8_t*)malloc(displayWidth * displayHeight);
-
-	textRows = displayHeight / ROWS_PER_CHARACTER;
-	textColumns = displayWidth / COLUMNS_PER_CHARACTER;
-	memory_map->TEXT_MEMORY = (uint8_t*)malloc(textRows * textColumns * BYTES_PER_TEXT_CELL);
-
-	_set_display_mode(displayWidth, displayHeight, 16, palette);
-}
 
 void tim_isr() {
     trace(1, SYSTICK++);
@@ -118,7 +48,6 @@ void tim_isr() {
 	*/
 
 	// Dump the contents of font memory.
-	/*
 	char ch = 0;
 	int offset = 0;
 	for (int row = 0; row < 16; row++) {
@@ -130,9 +59,9 @@ void tim_isr() {
 					int y = 16 + row * 9 + yd;
 
 					if ((byte & 0x01) == 1) {
-						memory_map->VIDEO_MEMORY[y * displayWidth + x] = (color + 9) % 16;
+						memory_map->VIDEO_MEMORY[y * current_display_mode->pixel_width + x] = (color + 9) % 16;
 					} else {
-						memory_map->VIDEO_MEMORY[y * displayWidth + x] = color;
+						memory_map->VIDEO_MEMORY[y * current_display_mode->pixel_width + x] = color;
 					}
 
 					byte = byte >> 1;
@@ -142,7 +71,6 @@ void tim_isr() {
 			ch++;
 		}
 	}
-	*/
 }
 
 void key_isr() {
@@ -173,10 +101,11 @@ int main() {
 	memory_map = (struct MemoryMap*)malloc(sizeof(struct MemoryMap));
 	memory_map->LAST_KEY_PRESS = (uint8_t*)malloc(1);
 	memory_map->FONT_MEMORY = (uint8_t*)malloc(FONT_SIZE * ROWS_PER_CHARACTER);
+	memory_map->VIDEO_MEMORY = 0;
+	memory_map->TEXT_MEMORY = 0;
 
-	struct Color* palette = generate_palette_cga();
-	set_display_mode(320, 240, 16, palette);
-	free(palette);
+	setup_display_modes();
+	set_display_mode(0);
 }
 
 EMSCRIPTEN_KEEPALIVE
