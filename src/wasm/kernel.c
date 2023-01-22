@@ -5,6 +5,7 @@
 #include <string.h>
 #include "graphics.h"
 #include "system.h"
+#include "text.h"
 
 struct MemoryMap* memory_map;
 
@@ -17,6 +18,7 @@ typedef void (*isr)();
 isr NVIC[MAX_ISR];
 
 uint8_t color = 0;
+uint8_t ch = 'A';
 
 void tim_isr() {
     trace(1, SYSTICK++);
@@ -41,6 +43,7 @@ void tim_isr() {
 	// Draw a filled rectangle.
 	//draw_filled_rect(100, 100, 150, 200, color);
 
+	/*
 	int ch = 0;
 	int offset = 0;
 	for (int row = 0; row < 16; row++) {
@@ -48,6 +51,14 @@ void tim_isr() {
 			drawch(32 + column * 8, 32 + row * 8, color, (color + 9) % 16, ch);
 			ch++;
 		}
+	}
+	*/
+	Cursor_set_background(color);
+	Cursor_set_foreground((color + 9) % 16);
+	text_putch(ch);
+	ch++;
+	if (ch > 'Z') {
+		ch = 'A';
 	}
 }
 
@@ -84,6 +95,8 @@ int main() {
 
 	setup_display_modes();
 	set_display_mode(0);
+	Cursor_set_foreground(7);
+	Cursor_set_background(1);
 }
 
 EMSCRIPTEN_KEEPALIVE

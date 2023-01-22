@@ -75,7 +75,7 @@ void draw_filled_rect(int x1, int y1, int x2, int y2, uint8_t color) {
 	}
 }
 
-void drawch(int x, int y, int bg, int fg, int ch) {
+void drawch(int x, int y, int fg, int bg, int ch) {
 	uint32_t offset = ch * ROWS_PER_CHARACTER;
 	for (int yd = 0; yd < ROWS_PER_CHARACTER; yd++) {
 		uint8_t byte = memory_map->FONT_MEMORY[offset];
