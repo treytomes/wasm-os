@@ -8,6 +8,18 @@
 - How to load WASM files from a WASM file?
 - Consider rewriting the C code in [AssemblyScript](https://www.assemblyscript.org/introduction.html).
 
+## Userland
+
+The idea is to have the kernel and user programs running in separate Web Works.
+User programs call a `syscall` function that is exported from the kernel, then reimported into the user program.
+
+`syscall` takes 3 parameters:
+- A function number.
+- The data length in bytes.
+- A blob of data that contains the parameters to be processed by the kernel.
+
+The data might need to be copied to the kernel through TypeScript.
+
 ## References
 
 - https://emscripten.org/
