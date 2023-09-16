@@ -1,112 +1,133 @@
-import { GameCanvas } from './bootstrap';
-import { generatePalette } from './palettes/radial';
-import ConsoleTile from './ConsoleTile';
-import TileSet from './TileSet';
-import OEM437_8 from '../assets/OEM437_8.png';
+import { GameCanvas } from './bootstrap'
+import { generatePalette } from './palettes/radial'
+import ConsoleTile from './ConsoleTile'
+import TileSet from './TileSet'
+import OEM437_8 from '../assets/OEM437_8.png'
 
 export default class TerminalGameCanvas extends GameCanvas {
-	tileSet: TileSet;
-	rows: number;
-	columns: number;
-	tiles: Array<Array<ConsoleTile>>;
+  tileSet: TileSet
+  rows: number
+  columns: number
+  tiles: Array<Array<ConsoleTile>>
 
-	constructor(rows: number, columns: number) {
-		super();
+  constructor(rows: number, columns: number) {
+    super()
 
-		this.tileSet = new TileSet(OEM437_8, 8, 8);
+    this.tileSet = new TileSet(OEM437_8, 8, 8)
 
-		this.rows = rows; // 28; // this.screenHeight / this.tileSet.tileHeight;
-		this.columns = columns; // 32; //this.screenWidth / this.tileSet.tileWidth;
+    this.rows = rows // 28; // this.screenHeight / this.tileSet.tileHeight;
+    this.columns = columns // 32; //this.screenWidth / this.tileSet.tileWidth;
 
-		this.screenWidth = this.columns * this.tileSet.tileWidth;
-		this.screenHeight = this.rows * this.tileSet.tileHeight;
+    this.screenWidth = this.columns * this.tileSet.tileWidth
+    this.screenHeight = this.rows * this.tileSet.tileHeight
 
-		//Logger.log(`rows=${this.rows}, columns=${this.columns}`);
-		//Logger.log(`width=${this.screenWidth}, height=${this.screenHeight}`);
+    //Logger.log(`rows=${this.rows}, columns=${this.columns}`);
+    //Logger.log(`width=${this.screenWidth}, height=${this.screenHeight}`);
 
-		this.tiles = [];
-		for (let r = 0; r < this.rows; r++) {
-			let row = [];
-			for (let c = 0; c < this.columns; c++) {
-				row.push(new ConsoleTile(0, 0, 0));
-			}
-			this.tiles.push(row);
-		}
-	}
-    
-    onInit() {
-        generatePalette();
-	}
+    this.tiles = []
+    for (let r = 0; r < this.rows; r++) {
+      const row = []
+      for (let c = 0; c < this.columns; c++) {
+        row.push(new ConsoleTile(0, 0, 0))
+      }
+      this.tiles.push(row)
+    }
+  }
 
-	/**
-     * @param {number} time Total elapsed milliseconds.
-     */
-	onUpdate(time: number) {
-	}
+  onInit() {
+    generatePalette()
+  }
 
-	loadContent() {
-		this.tileSet.loadContent();
-	}
+  /**
+   * @param {number} time Total elapsed milliseconds.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onUpdate(time: number) {}
 
-	drawTile(row: number, column: number, tileIndex: string|number = null, foregroundColor: number = null, backgroundColor: number = null) {
-		if ((row < 0) || (row >= this.rows) || (column < 0) || (column >= this.columns)) {
-			return;
-		}
+  loadContent() {
+    this.tileSet.loadContent()
+  }
 
-		const tile = this.tiles[row][column];
-		if (tileIndex != null) {
-			tile.tileIndex = tileIndex;
-		}
-		if (foregroundColor != null) {
-			tile.foregroundColor = foregroundColor;
-		}
-		if (backgroundColor != null) {
-			tile.backgroundColor = backgroundColor;
-		}
-	}
+  drawTile(
+    row: number,
+    column: number,
+    tileIndex: string | number | null = null,
+    foregroundColor: number | null = null,
+    backgroundColor: number | null = null
+  ) {
+    if (row < 0 || row >= this.rows || column < 0 || column >= this.columns) {
+      return
+    }
 
-	drawString(row: number, column: number, text: string, foregroundColor: number = null, backgroundColor: number = null) {
-		for (let n = 0; n < text.length; n++) {
-			this.drawTile(row, column + n, text[n], foregroundColor, backgroundColor);
-		}
-	}
+    const tile = this.tiles[row][column]
+    if (tileIndex != null) {
+      tile.tileIndex = tileIndex
+    }
+    if (foregroundColor != null) {
+      tile.foregroundColor = foregroundColor
+    }
+    if (backgroundColor != null) {
+      tile.backgroundColor = backgroundColor
+    }
+  }
 
-	fillRect(x: number, y: number, width: number, height: number, tileIndex: number, fg: number, bg: number) {
-		if (x + width > this.columns) {
-			width = this.columns - x;
-		}
-		if (y + height > this.rows) {
-			height = this.rows - y;
-		}
+  drawString(
+    row: number,
+    column: number,
+    text: string,
+    foregroundColor: number | null = null,
+    backgroundColor: number | null = null
+  ) {
+    for (let n = 0; n < text.length; n++) {
+      this.drawTile(row, column + n, text[n], foregroundColor, backgroundColor)
+    }
+  }
 
-		for (let dy = 0; dy < height; dy++) {
-			for (let dx = 0; dx < width; dx++) {
-				this.drawTile(y + dy, x + dx, tileIndex, fg, bg);
-			}
-		}
-	}
+  fillRect(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    tileIndex: number,
+    fg: number,
+    bg: number
+  ) {
+    if (x + width > this.columns) {
+      width = this.columns - x
+    }
+    if (y + height > this.rows) {
+      height = this.rows - y
+    }
 
-	clear() {
-		for (let r = 0; r < this.rows; r++) {
-			for (let c = 0; c < this.columns; c++) {
-				this.drawTile(r, c, 0, 0, 0);
-			}
-		}
-	}
+    for (let dy = 0; dy < height; dy++) {
+      for (let dx = 0; dx < width; dx++) {
+        this.drawTile(y + dy, x + dx, tileIndex, fg, bg)
+      }
+    }
+  }
 
-    /**
-     * @param {number} time Total elapsed milliseconds.
-     */
-	onRender(time: number) {
-		if (!this.tileSet.isLoaded) {
-			return;
-		}
+  clear() {
+    for (let r = 0; r < this.rows; r++) {
+      for (let c = 0; c < this.columns; c++) {
+        this.drawTile(r, c, 0, 0, 0)
+      }
+    }
+  }
 
-		for (let r = 0, y = 0; r < this.rows; r++, y += this.tileSet.tileHeight) {
-			for (let c = 0, x = 0; c < this.columns; c++, x += this.tileSet.tileWidth) {
-				const tile = this.tiles[r][c];
-				this.tileSet.draw(x, y, tile.tileIndex, tile.foregroundColor, tile.backgroundColor);
-			}
-		}
-	}
+  /**
+   * @param {number} time Total elapsed milliseconds.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onRender(time: number) {
+    if (!this.tileSet.isLoaded) {
+      return
+    }
+
+    for (let r = 0, y = 0; r < this.rows; r++, y += this.tileSet.tileHeight) {
+      for (let c = 0, x = 0; c < this.columns; c++, x += this.tileSet.tileWidth) {
+        const tile = this.tiles[r][c]
+        this.tileSet.draw(x, y, tile.tileIndex, tile.foregroundColor, tile.backgroundColor)
+      }
+    }
+  }
 }
