@@ -4,7 +4,7 @@ export default class GameCanvas {
   screenHeight: number
   isContentLoaded: boolean
 
-  constructor(canvas: HTMLCanvasElement | null = null) {
+  constructor(canvas?: HTMLCanvasElement) {
     this.canvas = (canvas ?? document.querySelector('canvas')) as HTMLCanvasElement
 
     // Standard SNES resolution.

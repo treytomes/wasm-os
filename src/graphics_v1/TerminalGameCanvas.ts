@@ -51,22 +51,22 @@ export default class TerminalGameCanvas extends GameCanvas {
   drawTile(
     row: number,
     column: number,
-    tileIndex: string | number | null = null,
-    foregroundColor: number | null = null,
-    backgroundColor: number | null = null
+    tileIndex?: string | number,
+    foregroundColor?: number,
+    backgroundColor?: number
   ) {
     if (row < 0 || row >= this.rows || column < 0 || column >= this.columns) {
       return
     }
 
     const tile = this.tiles[row][column]
-    if (tileIndex != null) {
+    if (tileIndex) {
       tile.tileIndex = tileIndex
     }
-    if (foregroundColor != null) {
+    if (foregroundColor) {
       tile.foregroundColor = foregroundColor
     }
-    if (backgroundColor != null) {
+    if (backgroundColor) {
       tile.backgroundColor = backgroundColor
     }
   }
@@ -75,8 +75,8 @@ export default class TerminalGameCanvas extends GameCanvas {
     row: number,
     column: number,
     text: string,
-    foregroundColor: number | null = null,
-    backgroundColor: number | null = null
+    foregroundColor?: number,
+    backgroundColor?: number
   ) {
     for (let n = 0; n < text.length; n++) {
       this.drawTile(row, column + n, text[n], foregroundColor, backgroundColor)

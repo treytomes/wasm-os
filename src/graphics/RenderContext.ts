@@ -3,12 +3,14 @@ import { DisplayMode } from './DisplayMode'
 export default class RenderContext {
   gl: WebGLRenderingContext
   displayMode: DisplayMode
-  image: Uint8Array
-  imageTexture: WebGLTexture
-  texture: WebGLTexture
+  image!: Uint8Array
+  imageTexture?: WebGLTexture
+  texture!: WebGLTexture
 
   constructor(gl: WebGLRenderingContext, displayMode: DisplayMode) {
     this.gl = gl
+    this.displayMode = displayMode
+
     this.resize(displayMode)
   }
 
@@ -25,7 +27,7 @@ export default class RenderContext {
 
     // The image representing our screen.
     this.image = new Uint8Array(displayMode.width * displayMode.height)
-    this.imageTexture = null
+    this.imageTexture = undefined
 
     if (this.texture) {
       this.gl.deleteTexture(this.texture)
@@ -59,6 +61,7 @@ export default class RenderContext {
     const _imageTexture = this.gl.createTexture()
     if (!_imageTexture) throw new Error('Unable to create the image texture.')
     this.imageTexture = _imageTexture
+
     this.refresh()
     this.setTextureParameters()
   }
@@ -74,6 +77,8 @@ export default class RenderContext {
    * Reload the render texture in video memory from the renderImage array.
    */
   refresh() {
+    if (!this.imageTexture) throw new Error('Image texture is not set.')
+
     this.gl.activeTexture(this.gl.TEXTURE0)
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.imageTexture)
     this.gl.texImage2D(

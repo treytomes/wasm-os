@@ -1,4 +1,5 @@
 export const PALETTE_SIZE = 256
+const BYTES_PER_COLOR = 4
 
 export class PaletteContext {
   gl: WebGLRenderingContext
@@ -11,7 +12,7 @@ export class PaletteContext {
     this.size = size
 
     // The 256-color screen palette.
-    this.palette = new Uint8Array(this.size * 4)
+    this.palette = new Uint8Array(this.size * BYTES_PER_COLOR)
 
     const _texture = this.gl.createTexture()
     if (!_texture) throw new Error('Unable to create palette texture.')
@@ -63,19 +64,19 @@ export class PaletteContext {
       const b = c[2]
       const a = c.length > 3 ? c[3] : 255
 
-      this.palette[index * 4 + 0] = r
-      this.palette[index * 4 + 1] = g
-      this.palette[index * 4 + 2] = b
-      this.palette[index * 4 + 3] = a
+      this.palette[index * BYTES_PER_COLOR + 0] = r
+      this.palette[index * BYTES_PER_COLOR + 1] = g
+      this.palette[index * BYTES_PER_COLOR + 2] = b
+      this.palette[index * BYTES_PER_COLOR + 3] = a
     }
     this.refresh()
   }
 
   set(index: number, r: number, g: number, b: number, a: number = 255) {
-    this.palette[index * 4 + 0] = r
-    this.palette[index * 4 + 1] = g
-    this.palette[index * 4 + 2] = b
-    this.palette[index * 4 + 3] = a
+    this.palette[index * BYTES_PER_COLOR + 0] = r
+    this.palette[index * BYTES_PER_COLOR + 1] = g
+    this.palette[index * BYTES_PER_COLOR + 2] = b
+    this.palette[index * BYTES_PER_COLOR + 3] = a
     this.refresh()
   }
 }

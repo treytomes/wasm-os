@@ -3,7 +3,7 @@ export default class RenderContext {
   width: number
   height: number
   image: Uint8Array
-  imageTexture: WebGLTexture | null
+  imageTexture?: WebGLTexture
   texture: WebGLTexture
 
   constructor(gl: WebGLRenderingContext, width: number, height: number) {
@@ -13,7 +13,6 @@ export default class RenderContext {
 
     // The image representing our screen.
     this.image = new Uint8Array(width * height)
-    this.imageTexture = null
 
     const _texture = this.gl.createTexture()
     if (!_texture) throw new Error('Unableto create render texture.')
@@ -38,7 +37,10 @@ export default class RenderContext {
    * Upload the render image data to video memory.
    */
   createTexture() {
-    this.imageTexture = this.gl.createTexture()
+    const _imageTexture = this.gl.createTexture()
+    if (!_imageTexture) throw new Error('Unable to create image texture.')
+    this.imageTexture = _imageTexture
+
     this.refresh()
     this.setTextureParameters()
   }
@@ -54,6 +56,8 @@ export default class RenderContext {
    * Reload the render texture in video memory from the renderImage array.
    */
   refresh() {
+    if (!this.imageTexture) throw new Error('Image texture is not set.')
+
     this.gl.activeTexture(this.gl.TEXTURE0)
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.imageTexture)
     this.gl.texImage2D(

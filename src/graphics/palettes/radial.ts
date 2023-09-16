@@ -42,8 +42,8 @@ export function generatePalette(): Array<Color> {
  * @param {number?} b A number from 0-5, or null for a single-value color.
  * @returns A palette index into the radial palette.
  */
-export function getColor(r: number, g: number | null = null, b: number | null = null) {
-  if (g == null || b == null) {
+export function getColor(r: number, g?: number, b?: number) {
+  if (!g || !b) {
     b = r % 10
     g = Math.floor(r / 10) % 10
     r = Math.floor(r / 100) % 10

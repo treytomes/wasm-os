@@ -8,7 +8,7 @@ export default class TileSet {
   tileWidth: number
   tileHeight: number
   tilesPerRow: number
-  image: Jimp | null
+  image?: Jimp
   isLoaded: boolean
   colorKey: number
 
@@ -18,7 +18,7 @@ export default class TileSet {
     this.tileHeight = tileHeight
     this.tilesPerRow = 0
 
-    this.image = null
+    this.image = undefined
     this.isLoaded = false
 
     this.colorKey = DEFAULT_COLORKEY
