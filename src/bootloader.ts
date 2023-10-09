@@ -5,6 +5,7 @@ import * as memory from './system/memory'
 import * as graphics from './graphics/init'
 import { DisplayMode } from './graphics/DisplayMode'
 import { Color } from './graphics/Color'
+import * as kernel from './kernel'
 
 interface IKernelExports {
   memory: WebAssembly.Memory
@@ -95,24 +96,31 @@ function kernelMain(results: WebAssembly.WebAssemblyInstantiatedSource) {
 }
 
 export async function main() {
-  console.info(`${Date.now()}: Starting the bootloade.?`)
+  console.info(`${Date.now()}: Starting the bootloader.`)
 
-  // Load the operating system.
-  const response = await fetch(settings.URL_KERNEL_WASM)
-  const bytes = await response.arrayBuffer()
-  const results = await WebAssembly.instantiate(bytes, {
-    js: {
-      mem: memory.memory
-    },
-    env: {
-      emscripten_resize_heap: memory.emscripten_resize_heap,
-      serial_write: (file: serial.StandardFile, dataPointer: number) =>
-        serial.serial_write(memory.memory, file, dataPointer),
-      _set_display_mode: _set_display_mode,
-      trace: (channel: number, data: number) => serial.trace(channel, data)
-    },
-    wasi_snapshot_preview1: wasi_imports
+  // // Load the operating system.
+  // const response = await fetch(settings.URL_KERNEL_WASM)
+  // const bytes = await response.arrayBuffer()
+  // const results = await WebAssembly.instantiate(bytes, {
+  //   js: {
+  //     mem: memory.memory
+  //   },
+  //   env: {
+  //     emscripten_resize_heap: memory.emscripten_resize_heap,
+  //     __serial_write: (file: serial.StandardFile, dataPointer: number) =>
+  //       serial.serialWrite(memory.memory, file, dataPointer),
+  //     _set_display_mode: _set_display_mode,
+  //     __trace: (channel: number, data: number) => serial.trace(channel, data)
+  //   },
+  //   wasi_snapshot_preview1: wasi_imports
+  // })
+
+  // kernelMain(results)
+
+  //kernel.greet()
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  kernel.default().then((_exports: IKernelExports) => {
+    kernel.main()
   })
-
-  kernelMain(results)
 }
